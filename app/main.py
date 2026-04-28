@@ -48,11 +48,26 @@ async def root():
     }
 
 
-# API v1 路由
-from app.api.v1.endpoints import users, matches
+# API v1 路由（旧版兼容）
+from app.api.v1.endpoints import users as v1_users, matches as v1_matches
+from app.api.endpoints import auth, users, matches, chat
 
-app.include_router(users.router, prefix=settings.API_V1_PREFIX)
-app.include_router(matches.router, prefix=settings.API_V1_PREFIX)
+app.include_router(v1_users.router, prefix=settings.API_V1_PREFIX)
+app.include_router(v1_matches.router, prefix=settings.API_V1_PREFIX)
+
+# 前端对接路由
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(matches.router, prefix="/api/matches", tags=["matches"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+
+
+# 启动时自动创建数据库表
+@app.on_event("startup")
+def on_startup():
+    from app.db.database import engine
+    from app.models import Base
+    Base.metadata.create_all(bind=engine)
 
 
 if __name__ == "__main__":

@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # CORS 配置（生产环境）
     BACKEND_CORS_ORIGINS: list = [
         "https://matchmaker-api.onrender.com",
+        "https://matchmaker-frontend-hs57.onrender.com",
         "https://matchmaker-frontend.vercel.app",
         "https://lwormsunwjwlutwqnlnt.supabase.co",
     ]
