@@ -65,9 +65,13 @@ app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 # 启动时自动创建数据库表
 @app.on_event("startup")
 def on_startup():
-    from app.db.database import engine
-    from app.models import Base
-    Base.metadata.create_all(bind=engine)
+    try:
+        from app.db.database import engine
+        from app.models import Base
+        Base.metadata.create_all(bind=engine)
+        print("Database tables created/verified")
+    except Exception as e:
+        print(f"Database connection failed (app will continue): {e}")
 
 
 if __name__ == "__main__":
