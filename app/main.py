@@ -9,7 +9,7 @@ from app.core.config import settings
 # 创建 FastAPI 应用
 app = FastAPI(
     title=settings.APP_NAME,
-    version=settings.__version__,
+    version=settings.VERSION,
     description="相亲网站后端 API",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -43,7 +43,7 @@ async def root():
     """根路径"""
     return {
         "message": "Matchmaker Backend API",
-        "version": settings.__version__,
+        "version": settings.VERSION,
         "docs": "/docs",
     }
 

@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     # 基础配置
     APP_NAME: str = "Matchmaker Backend"
+    VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
     DEBUG: bool = False
 
