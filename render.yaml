@@ -2,8 +2,9 @@ services:
   # FastAPI 后端
   - type: web
     name: matchmaker-api
-    runtime: python
+    runtime: docker
     plan: free
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
         value: postgresql://postgres:L.am19961209..@db.lwormsunwjwlutwqnlnt.supabase.co:5432/postgres
@@ -14,5 +15,5 @@ services:
       - key: SUPABASE_URL
         value: https://lwormsunwjwlutwqnlnt.supabase.co
       - key: SUPABASE_ANON_KEY
-        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Jtc3V3d2x1dHd3FubG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzczNTEwMDQsInV4cCI6MjA1OTY5NzQwNH0.UEfFt0zoSlJ3Jm2GzDT6T-R10ZRMLaqypaDWFnwZPjU
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Jtc3Vud2p3bHV0d3FubG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTE0MDQsImV4cCI6MjA5MjkyNzQwNH0.UEfFt0zoSlJ3Jm2GzDT6T-R10ZRMLaqypaDWFnwZPjU
     healthCheckPath: /health
