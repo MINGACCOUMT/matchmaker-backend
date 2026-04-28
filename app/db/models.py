@@ -1,7 +1,7 @@
 """
 数据库模型
 """
-from sqlalchemy import Column, Integer, String, SmallInteger, Date, DateTime, Text, DECIMAL, Boolean
+from sqlalchemy import Column, Integer, String, SmallInteger, Date, DateTime, Text, DECIMAL, Boolean, JSON, ForeignKey, ARRAY
 from sqlalchemy.sql import func
 from app.db.database import Base
 
@@ -11,8 +11,9 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
-    phone = Column(String(20), unique=True, nullable=False, index=True)
-    email = Column(String(255))
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=True)
+    phone = Column(String(20), unique=True, nullable=True)
     nickname = Column(String(50))
     avatar_url = Column(String(500))
     gender = Column(SmallInteger, default=0)
@@ -28,7 +29,7 @@ class UserProfile(Base):
     """用户资料表"""
     __tablename__ = "user_profiles"
     
-    user_id = Column(Integer, primary=True)
+    user_id = Column(Integer, primary_key=True)
     height = Column(SmallInteger)
     weight = Column(SmallInteger)
     education = Column(SmallInteger, default=0)
@@ -48,7 +49,7 @@ class UserPreference(Base):
     """用户择偶条件表"""
     __tablename__ = "user_preferences"
     
-    user_id = Column(Integer, primary=True)
+    user_id = Column(Integer, primary_key=True)
     min_age = Column(SmallInteger, default=18)
     max_age = Column(SmallInteger, default=99)
     min_height = Column(SmallInteger, default=140)
