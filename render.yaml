@@ -7,7 +7,7 @@ services:
     dockerContext: .
     envVars:
       - key: DATABASE_URL
-        value: postgresql://postgres:L.am19961209..@db.lwormsunwjwlutwqnlnt.supabase.co:5432/postgres
+        sync: false
       - key: SECRET_KEY
         value: matchmaker-jwt-secret-2024-production
       - key: ENVIRONMENT
@@ -19,5 +19,4 @@ services:
       - key: BACKEND_CORS_ORIGINS
         value: "*"
     healthCheckPath: /health
-    # 明确指定使用 Docker
     dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT

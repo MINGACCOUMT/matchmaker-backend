@@ -18,11 +18,11 @@ class Settings(BaseSettings):
     # API 配置
     API_V1_PREFIX: str = "/api/v1"
 
-    # 数据库配置（生产环境从 Supabase 读取）
-    DATABASE_URL: str = "postgresql://postgres:L.am19961209..@db.lwormsunwjwlutwqnlnt.supabase.co:5432/postgres"
+    # 数据库配置（从环境变量读取）
+    DATABASE_URL: str = ""
 
     # JWT 配置
-    SECRET_KEY: str = "matchmaker-jwt-secret-2024-production"
+    SECRET_KEY: str = "matchmaker-jwt-secret-2024-development"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 天
 
@@ -43,8 +43,8 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",")]
 
     # Supabase 配置
-    SUPABASE_URL: str = "https://lwormsunwjwlutwqnlnt.supabase.co"
-    SUPABASE_ANON_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Jtc3V3d2x1dHd3FubG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTEwMDQsInV4cCI6MjA1OTY5NzQwNH0.UEfFt0zoSlJ3Jm2GzDT6T-R10ZRMLaqypaDWFnwZPjU"
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
 
     class Config:
         env_file = ".env"
