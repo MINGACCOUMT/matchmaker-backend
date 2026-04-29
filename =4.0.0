@@ -1,0 +1,2 @@
+Requirement already satisfied: bcrypt in /home/ubuntu/.local/lib/python3.10/site-packages (5.0.0)
+Requirement already satisfied: passlib[bcrypt] in /home/ubuntu/.local/lib/python3.10/site-packages (1.7.4)

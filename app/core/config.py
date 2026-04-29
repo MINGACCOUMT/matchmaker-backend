@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # CORS 配置（生产环境）
     # 支持多种格式：["*"]、"*"、"*"
-    BACKEND_CORS_ORIGINS: str = "*"
+    BACKEND_CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
     @property
     def cors_origins(self) -> List[str]:
