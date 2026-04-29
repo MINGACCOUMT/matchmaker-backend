@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     # API 配置
     API_V1_PREFIX: str = "/api/v1"
 
-    # 数据库配置（从环境变量读取）
-    DATABASE_URL: str = ""
+    # 数据库配置（从环境变量读取，默认 MySQL 本地开发）
+    DATABASE_URL: str = "mysql+pymysql://matchmaker:matchmaker_pass_2024@localhost:3306/matchmaker"
 
     # JWT 配置
     SECRET_KEY: str = "matchmaker-jwt-secret-2024-development"
