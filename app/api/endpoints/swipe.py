@@ -8,7 +8,7 @@ from app.db.models import User, Match
 from app.core.auth import get_current_user
 from sqlalchemy import or_
 
-router = APIRouter()
+router = APIRouter(prefix="/swipe", tags=["swipe"])
 
 
 @router.post("/batch-like")
@@ -37,7 +37,7 @@ async def batch_like(
             new_match = Match(
                 user_a_id=current_user.id,
                 user_b_id=match_id,
-                is_active=True
+                is_active=True,
                 created_at=datetime.utcnow()
             )
             db.add(new_match)

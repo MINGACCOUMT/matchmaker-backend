@@ -64,8 +64,8 @@ async def root():
 
 
 # API 路由
-from app.api.v1.endpoints import users, matches, auth, chat, upload, swipe
-from app.api.endpoints import websocket
+from app.api.v1.endpoints import users, matches, auth, chat, websocket
+from app.api.endpoints import upload, swipe
 
 # REST API
 app.include_router(auth.router, prefix="/api/auth")

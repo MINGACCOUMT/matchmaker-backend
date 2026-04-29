@@ -13,7 +13,7 @@ from app.db.database import get_db
 from app.db.models import User, Chat, Message, Match, UserProfile
 from app.schemas import ConversationsResponse, MessageOut, MessagesResponse, SendMessageRequest
 
-router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter()
 
 
 def get_conversation_details(chat: Chat, user_id: int, db: Session) -> dict:
