@@ -48,9 +48,8 @@ async def root():
     }
 
 
-# API 路由
-from app.api.v1.endpoints import users, matches
-from app.api.endpoints import auth, chat
+# API v1 路由（只使用 v1 版本）
+from app.api.v1.endpoints import users, matches, auth, chat
 
 app.include_router(auth.router, prefix="/api/auth")
 app.include_router(chat.router, prefix="/api/chat")
