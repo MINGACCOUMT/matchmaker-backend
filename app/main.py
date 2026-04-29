@@ -11,7 +11,7 @@ from app.core.config import settings
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
-    description="相亲网站后端 API - 支持图片上传和 WebSocket 实时聊天",
+    description="相亲网站后端 API - 支持实时聊天、图片上传、滑卡功能",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -44,6 +44,7 @@ async def health_check():
             "auth": True,
             "websocket": True,
             "upload": True,
+            "swipe": True,
         }
     }
 
@@ -58,11 +59,12 @@ async def root():
         "docs": "/docs",
         "websocket": "WebSocket 实时聊天已启用",
         "upload": "图片上传已启用",
+        "swipe": "滑卡功能已启用",
     }
 
 
 # API 路由
-from app.api.v1.endpoints import users, matches, auth, chat, upload
+from app.api.v1.endpoints import users, matches, auth, chat, upload, swipe
 from app.api.endpoints import websocket
 
 # REST API
@@ -71,6 +73,7 @@ app.include_router(chat.router, prefix="/api/chat")
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(matches.router, prefix=settings.API_V1_PREFIX)
 app.include_router(upload.router, prefix=settings.API_V1_PREFIX)
+app.include_router(swipe.router, prefix=settings.API_V1_PREFIX)
 
 # WebSocket API
 app.include_router(websocket.router, prefix="/api")
@@ -94,6 +97,7 @@ def on_startup():
         
         print("✅ WebSocket 实时聊天已启用")
         print("✅ 图片上传已启用")
+        print("✅ 滑卡功能已启用")
     except Exception as e:
         print(f"Database connection failed (app will continue): {e}")
 
