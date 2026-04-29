@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.models import User, Chat, Message
+from app.db.models import User, Chat, Message
 from app.schemas import ConversationsResponse, MessagesResponse, SendMessageRequest
 from app.core.auth import get_current_user
 from datetime import datetime

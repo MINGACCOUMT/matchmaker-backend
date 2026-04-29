@@ -50,7 +50,10 @@ async def root():
 
 # API v1 路由
 from app.api.v1.endpoints import users, matches
+from app.api.endpoints import auth, chat
 
+app.include_router(auth.router, prefix="/api/auth")
+app.include_router(chat.router, prefix="/api/chat")
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(matches.router, prefix=settings.API_V1_PREFIX)
 

@@ -29,7 +29,7 @@ class UserProfile(Base):
     """用户资料表"""
     __tablename__ = "user_profiles"
     
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     height = Column(SmallInteger)
     weight = Column(SmallInteger)
     education = Column(SmallInteger, default=0)
@@ -49,7 +49,7 @@ class UserPreference(Base):
     """用户择偶条件表"""
     __tablename__ = "user_preferences"
     
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     min_age = Column(SmallInteger, default=18)
     max_age = Column(SmallInteger, default=99)
     min_height = Column(SmallInteger, default=140)
