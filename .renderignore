@@ -1,0 +1,18 @@
+# 明确告诉 Render 忽略这些文件，防止错误识别为 Node.js 项目
+
+# Node.js 相关（忽略）
+package.json
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+node_modules/
+.nvmrc
+.node-version
+
+# 其他忽略
+__pycache__/
+*.pyc
+.env
+.venv
+venv/
+*.db
