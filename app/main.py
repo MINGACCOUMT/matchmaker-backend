@@ -10,7 +10,7 @@ from app.core.config import settings
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
-    description="相亲网站后端 API",
+    description="相亲网站后端 API - 支持 WebSocket 实时聊天",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -20,7 +20,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -34,6 +34,7 @@ async def health_check():
         "status": "healthy",
         "service": settings.APP_NAME,
         "environment": settings.ENVIRONMENT,
+        "version": settings.VERSION,
     }
 
 
@@ -45,17 +46,21 @@ async def root():
         "message": "Matchmaker Backend API",
         "version": settings.VERSION,
         "docs": "/docs",
+        "websocket": "WebSocket 实时聊天已启用",
     }
 
 
-# API v1 路由
-from app.api.v1.endpoints import users, matches
-from app.api.endpoints import auth, chat
+# API 路由
+from app.api.v1.endpoints import users, matches, auth, chat, websocket
 
+# REST API
 app.include_router(auth.router, prefix="/api/auth")
 app.include_router(chat.router, prefix="/api/chat")
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(matches.router, prefix=settings.API_V1_PREFIX)
+
+# WebSocket API
+app.include_router(websocket.router, prefix="/api")
 
 
 # 启动时自动创建数据库表
@@ -65,7 +70,8 @@ def on_startup():
         from app.db.database import engine
         from app.db.models import Base
         Base.metadata.create_all(bind=engine)
-        print("Database tables created/verified")
+        print("✅ Database tables created/verified")
+        print("✅ WebSocket 实时聊天已启用")
     except Exception as e:
         print(f"Database connection failed (app will continue): {e}")
 

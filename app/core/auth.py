@@ -48,3 +48,15 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+async def get_current_user_ws(token: str, db: Session = Depends(get_db)) -> Optional[User]:
+    """
+    WebSocket Token 验证（异步版本）
+    """
+    payload = decode_token(token)
+    if not payload or "sub" not in payload:
+        return None
+    user_id = int(payload["sub"])
+    user = db.query(User).filter(User.id == user_id).first()
+    return user
