@@ -48,7 +48,7 @@ async def root():
     }
 
 
-# API v1 路由
+# API 路由
 from app.api.v1.endpoints import users, matches
 from app.api.endpoints import auth, chat
 
