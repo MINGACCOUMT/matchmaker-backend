@@ -2,6 +2,8 @@
 核心配置模块
 """
 from pydantic_settings import BaseSettings
+from typing import List
+import json
 
 
 class Settings(BaseSettings):
@@ -25,13 +27,24 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 天
 
     # CORS 配置（生产环境）
-    BACKEND_CORS_ORIGINS: list = [
-        "*",
-    ]
+    # 支持多种格式：["*"]、"*"、"*"
+    BACKEND_CORS_ORIGINS: str = "*"
+
+    @property
+    def cors_origins(self) -> List[str]:
+        """解析 CORS 来源列表"""
+        if self.BACKEND_CORS_ORIGINS == "*":
+            return ["*"]
+        try:
+            # 尝试解析为 JSON 数组
+            return json.loads(self.BACKEND_CORS_ORIGINS)
+        except:
+            # 如果不是 JSON，按逗号分隔
+            return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",")]
 
     # Supabase 配置
     SUPABASE_URL: str = "https://lwormsunwjwlutwqnlnt.supabase.co"
-    SUPABASE_ANON_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Jtc3V3d2x1dHd3FubG50Iiwicm9zZSI6ImFub24iLCJpYXQiOjE3MzczNTEwMDQsInV4cCI6MjA1OTY5NzQwNH0.UEfFt0zoSlJ3Jm2GzDT6T-R10ZRMLaqypaDWFnwZPjU"
+    SUPABASE_ANON_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Jtc3V3d2x1dHd3FubG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTEwMDQsInV4cCI6MjA1OTY5NzQwNH0.UEfFt0zoSlJ3Jm2GzDT6T-R10ZRMLaqypaDWFnwZPjU"
 
     class Config:
         env_file = ".env"
