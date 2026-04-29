@@ -51,13 +51,20 @@ async def root():
 
 
 # API 路由
-from app.api.v1.endpoints import users, matches, auth, chat, websocket
+from app.api.endpoints import auth, chat
+from app.api.v1.endpoints import users, matches, websocket
 
-# REST API
+# 认证 API（v1 版本也复制了一份）
 app.include_router(auth.router, prefix="/api/auth")
+
+# 聊天 API（使用旧版本）
 app.include_router(chat.router, prefix="/api/chat")
-app.include_router(users.router, prefix=settings.API_V1_PREFIX)
-app.include_router(matches.router, prefix=settings.API_V1_PREFIX)
+
+# 用户 API（v1 版本）
+app.include_router(users.router, prefix="/api/v1")
+
+# 匹配 API（v1 版本）
+app.include_router(matches.router, prefix="/api/v1")
 
 # WebSocket API
 app.include_router(websocket.router, prefix="/api")
