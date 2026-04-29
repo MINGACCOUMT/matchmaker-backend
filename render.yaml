@@ -16,6 +16,12 @@ services:
         value: https://lwormsunwjwlutwqnlnt.supabase.co
       - key: SUPABASE_ANON_KEY
         value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Jtc3Vud2p3bHV0d3FubG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTE0MDQsImV4cCI6MjA5MjkyNzQwNH0.UEfFt0zoSlJ3Jm2GzDT6T-R10ZRMLaqypaDWFnwZPjU
+      - key: DEBUG
+        value: false
+      - key: API_V1_PREFIX
+        value: /api/v1
+      - key: BACKEND_CORS_ORIGINS
+        value: "*"
     healthCheckPath: /health
     # 明确指定使用 Docker
     dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
