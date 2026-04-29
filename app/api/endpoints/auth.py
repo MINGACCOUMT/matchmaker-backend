@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.models import User, UserProfile
+from app.db.models import User, UserProfile
 from app.schemas import RegisterRequest, LoginRequest, TokenResponse
 from app.core.auth import get_password_hash, verify_password, create_access_token
 import json
@@ -42,7 +42,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     profile = UserProfile(
         user_id=user.id,
         self_intro=req.bio,
-        tags=tags if tags else [],
+        tags=json.dumps(tags) if tags else None,
     )
     db.add(profile)
     db.commit()
