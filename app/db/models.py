@@ -9,11 +9,10 @@ from app.db.database import Base
 class User(Base):
     """用户表"""
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=True)
-    phone = Column(String(20), unique=True, nullable=True)
     nickname = Column(String(50))
     avatar_url = Column(String(500))
     gender = Column(SmallInteger, default=0)
@@ -28,7 +27,7 @@ class User(Base):
 class UserProfile(Base):
     """用户资料表"""
     __tablename__ = "user_profiles"
-    
+
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     height = Column(SmallInteger)
     weight = Column(SmallInteger)
@@ -48,7 +47,7 @@ class UserProfile(Base):
 class UserPreference(Base):
     """用户择偶条件表"""
     __tablename__ = "user_preferences"
-    
+
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     min_age = Column(SmallInteger, default=18)
     max_age = Column(SmallInteger, default=99)
@@ -64,10 +63,10 @@ class UserPreference(Base):
 class Match(Base):
     """匹配记录表"""
     __tablename__ = "matches"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    user_a_id = Column(Integer, index=True)
-    user_b_id = Column(Integer, index=True)
+    user_a_id = Column(Integer, ForeignKey('users.id'), index=True)
+    user_b_id = Column(Integer, ForeignKey('users.id'), index=True)
     match_score = Column(DECIMAL(5, 2))
     match_reason = Column(Text)  # JSONB，暂存为TEXT
     status = Column(SmallInteger, default=0, index=True)
@@ -79,11 +78,11 @@ class Match(Base):
 class Chat(Base):
     """聊天会话表"""
     __tablename__ = "chats"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    match_id = Column(Integer)
-    user_a_id = Column(Integer)
-    user_b_id = Column(Integer)
+    match_id = Column(Integer, ForeignKey('matches.id'))
+    user_a_id = Column(Integer, ForeignKey('users.id'))
+    user_b_id = Column(Integer, ForeignKey('users.id'))
     last_message_at = Column(DateTime)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
@@ -92,9 +91,9 @@ class Chat(Base):
 class Message(Base):
     """消息记录表"""
     __tablename__ = "messages"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    chat_id = Column(Integer, index=True)
+    chat_id = Column(Integer, ForeignKey('chats.id'), index=True)
     sender_id = Column(Integer)
     message_type = Column(SmallInteger, default=1)
     content = Column(Text)
