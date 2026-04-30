@@ -1,7 +1,6 @@
 """
 匹配相关 API 端点
 """
-import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -10,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user
 from app.db.database import get_db
-from app.db.models import User, UserProfile, Match
+from app.db.models import Chat, Match, User, UserProfile
 from app.schemas import LikeRequest, LikeResponse, MatchOut, MatchesResponse
 
 router = APIRouter(prefix="/matches", tags=["matches"])
@@ -36,17 +35,27 @@ def like_user(req: LikeRequest, user: User = Depends(get_current_user), db: Sess
 
     matched = False
     match_id = None
+    match_record = existing
 
     try:
         if existing:
             # 对方先喜欢我时，当前操作代表互相喜欢
             if existing.status == 0 and existing.user_b_id == user.id:
+                now = datetime.utcnow()
                 existing.status = 1  # 升级为匹配成功
                 matched = True
                 match_id = existing.id
+                db.add(Chat(
+                    match_id=existing.id,
+                    user_a_id=existing.user_a_id,
+                    user_b_id=existing.user_b_id,
+                    is_active=True,
+                    created_at=now,
+                    last_message_at=now,
+                ))
         else:
             # 创建新的喜欢记录
-            match = Match(
+            match_record = Match(
                 user_a_id=user.id,
                 user_b_id=req.to_user_id,
                 status=0,
@@ -54,15 +63,18 @@ def like_user(req: LikeRequest, user: User = Depends(get_current_user), db: Sess
                 initiated_by=user.id,
                 created_at=datetime.utcnow(),
             )
-            db.add(match)
+            db.add(match_record)
             db.flush()
-            match_id = match.id
+            match_id = match_record.id
             matched = False
 
         # 更新当前用户最后活跃时间
         user.last_active_at = datetime.utcnow()
         db.commit()
-        db.refresh(match)
+        if existing:
+            db.refresh(existing)
+        elif match_record is not None:
+            db.refresh(match_record)
 
         return {"matched": matched, "match_id": match_id}
 

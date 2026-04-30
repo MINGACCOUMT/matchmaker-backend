@@ -1,12 +1,15 @@
 """
 批量操作 API
 """
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.db.database import get_db
-from app.db.models import User, Match
-from app.core.auth import get_current_user
 from sqlalchemy import or_
+from sqlalchemy.orm import Session
+
+from app.core.auth import get_current_user
+from app.db.database import get_db
+from app.db.models import Match, User
 
 router = APIRouter(prefix="/swipe", tags=["swipe"])
 
@@ -30,14 +33,14 @@ async def batch_like(
         existing = db.query(Match).filter(
             Match.user_a_id == current_user.id,
             Match.user_b_id == match_id,
-            Match.is_active == True
+            Match.status >= 0
         ).first()
-        
+
         if not existing:
             new_match = Match(
                 user_a_id=current_user.id,
                 user_b_id=match_id,
-                is_active=True,
+                status=0,
                 created_at=datetime.utcnow()
             )
             db.add(new_match)
@@ -72,11 +75,11 @@ async def batch_unlike(
                 (Match.user_a_id == current_user.id) & (Match.user_b_id == match_id),
                 (Match.user_a_id == match_id) & (Match.user_b_id == current_user.id)
             ),
-            Match.is_active == True
+            Match.status >= 0
         ).first()
-        
+
         if match:
-            match.is_active = False
+            match.status = -1
             updated_count += 1
     
     db.commit()
@@ -101,7 +104,7 @@ async def get_matches(
             (Match.user_a_id == current_user.id),
             (Match.user_b_id == current_user.id)
         ),
-        Match.is_active == True
+        Match.status >= 0
     ).order_by(Match.created_at.desc()).all()
     
     # 获取匹配用户信息
