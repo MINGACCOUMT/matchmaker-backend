@@ -28,6 +28,8 @@ app.add_middleware(
 
 
 # 静态文件服务（用于上传的图片）
+import os
+os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
