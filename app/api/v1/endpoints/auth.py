@@ -1,14 +1,16 @@
 """
 认证相关 API
 """
+from datetime import datetime, date
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
+from app.core.auth import create_access_token, get_password_hash, verify_password
 from app.db.database import get_db
 from app.db.models import User, UserProfile
-from app.schemas import RegisterRequest, LoginRequest, TokenResponse
-from app.core.auth import get_password_hash, verify_password, create_access_token
-import json
-from datetime import datetime
+from app.schemas import LoginRequest, RegisterRequest, TokenResponse
 
 router = APIRouter()
 
@@ -25,13 +27,21 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     except Exception:
         tags = []
 
+    # 转换 birth_date 为 date 对象
+    birthday = None
+    if req.birth_date:
+        try:
+            birthday = date.fromisoformat(req.birth_date)
+        except ValueError:
+            birthday = None
+
     # 创建用户
     user = User(
         email=req.email,
         password_hash=get_password_hash(req.password),
         nickname=req.nickname,
         gender=req.gender,
-        birthday=req.birth_date if req.birth_date else None,
+        birthday=birthday,
         status=1,
         last_active_at=datetime.utcnow(),
     )

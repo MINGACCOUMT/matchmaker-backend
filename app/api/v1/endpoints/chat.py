@@ -97,11 +97,11 @@ def get_messages(chat_id: int, user: User = Depends(get_current_user), db: Sessi
     return {"messages": result}
 
 
-@router.post("/send")
+@router.post("/messages")
 def send_message(req: SendMessageRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """发送消息"""
     # 查找会话
-    chat = db.query(Chat).filter(Chat.id == req.conversation_id).first()
+    chat = db.query(Chat).filter(Chat.id == req.chat_id).first()
     if not chat:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
 
@@ -112,7 +112,7 @@ def send_message(req: SendMessageRequest, user: User = Depends(get_current_user)
     try:
         # 创建新消息
         message = Message(
-            chat_id=req.conversation_id,
+            chat_id=req.chat_id,
             sender_id=user.id,
             content=req.content,
             is_read=False,
@@ -130,7 +130,7 @@ def send_message(req: SendMessageRequest, user: User = Depends(get_current_user)
         db.refresh(message)
         return {
             "id": message.id,
-            "chat_id": req.conversation_id,
+            "chat_id": req.chat_id,
             "sender_id": user.id,
             "content": req.content,
             "created_at": message.created_at.isoformat(),

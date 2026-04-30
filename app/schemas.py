@@ -133,5 +133,5 @@ class MessagesResponse(BaseModel):
 
 
 class SendMessageRequest(BaseModel):
-    conversation_id: str
+    chat_id: int
     content: str
