@@ -220,3 +220,28 @@ def test_reset_password_invalid_token(client):
         "new_password": "newpass456"
     })
     assert r.status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# OAuth
+# ---------------------------------------------------------------------------
+
+def test_oauth_authorize_unsupported_provider(client):
+    r = client.get("/api/auth/oauth/wechat/authorize")
+    assert r.status_code == 400
+
+
+def test_oauth_authorize_not_configured(client):
+    # GITHUB_CLIENT_ID is empty in test env
+    r = client.get("/api/auth/oauth/github/authorize")
+    assert r.status_code == 500
+
+
+def test_oauth_callback_unsupported_provider(client):
+    r = client.get("/api/auth/oauth/wechat/callback?code=abc")
+    assert r.status_code == 400
+
+
+def test_oauth_callback_not_configured(client):
+    r = client.get("/api/auth/oauth/github/callback?code=abc")
+    assert r.status_code == 500

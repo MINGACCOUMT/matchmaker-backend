@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""
 
+    # OAuth 配置
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    OAUTH_REDIRECT_URI: str = "http://localhost:5173/oauth/callback"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
