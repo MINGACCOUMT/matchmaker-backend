@@ -156,3 +156,67 @@ def test_conversations_empty(client, auth_headers):
     r = client.get("/api/chat/conversations", headers=auth_headers)
     assert r.status_code == 200
     assert r.json()["conversations"] == []
+
+
+# ---------------------------------------------------------------------------
+# Password reset
+# ---------------------------------------------------------------------------
+
+def test_forgot_password_existing_user(client):
+    # Register first
+    client.post("/api/auth/register", json={
+        "email": "reset@test.com",
+        "password": "oldpass123",
+        "nickname": "Reset",
+        "gender": 1,
+        "birth_date": "1990-01-01"
+    })
+    r = client.post("/api/auth/forgot-password", json={"email": "reset@test.com"})
+    assert r.status_code == 200
+    data = r.json()
+    assert "token" in data
+    assert data["token"]
+
+
+def test_forgot_password_nonexistent_user(client):
+    r = client.post("/api/auth/forgot-password", json={"email": "nobody@test.com"})
+    assert r.status_code == 200
+    # Should return same message without token
+    assert "token" not in r.json()
+
+
+def test_reset_password_success(client):
+    # Register
+    client.post("/api/auth/register", json={
+        "email": "reset2@test.com",
+        "password": "oldpass123",
+        "nickname": "Reset2",
+        "gender": 1,
+        "birth_date": "1990-01-01"
+    })
+    # Get reset token
+    r = client.post("/api/auth/forgot-password", json={"email": "reset2@test.com"})
+    token = r.json()["token"]
+
+    # Reset password
+    r = client.post("/api/auth/reset-password", json={
+        "token": token,
+        "new_password": "newpass456"
+    })
+    assert r.status_code == 200
+
+    # Login with new password
+    r = client.post("/api/auth/login", json={
+        "email": "reset2@test.com",
+        "password": "newpass456"
+    })
+    assert r.status_code == 200
+    assert "access_token" in r.json()
+
+
+def test_reset_password_invalid_token(client):
+    r = client.post("/api/auth/reset-password", json={
+        "token": "invalid.token.here",
+        "new_password": "newpass456"
+    })
+    assert r.status_code == 400

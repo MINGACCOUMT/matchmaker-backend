@@ -1,16 +1,16 @@
 """
 认证相关 API
 """
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import json
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.auth import create_access_token, get_password_hash, verify_password
+from app.core.auth import create_access_token, decode_token, get_password_hash, verify_password
 from app.db.database import get_db
 from app.db.models import User, UserProfile
-from app.schemas import LoginRequest, RegisterRequest, TokenResponse
+from app.schemas import ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest, TokenResponse
 
 router = APIRouter()
 
@@ -93,3 +93,34 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
             "gender": user.gender,
         },
     }
+
+
+@router.post("/forgot-password")
+def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        # 为了安全，即使邮箱不存在也返回相同消息
+        return {"message": "If this email exists, a reset link has been sent"}
+
+    token = create_access_token(
+        {"sub": str(user.id), "type": "reset"},
+        expires_delta=timedelta(minutes=30)
+    )
+    # 未来可接入邮件服务：log the reset link for now
+    print(f"[PASSWORD RESET] email={req.email} token={token}")
+    return {"message": "If this email exists, a reset link has been sent", "token": token}
+
+
+@router.post("/reset-password")
+def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
+    payload = decode_token(req.token)
+    if not payload or payload.get("type") != "reset" or "sub" not in payload:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    user = db.query(User).filter(User.id == int(payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    user.password_hash = get_password_hash(req.new_password)
+    db.commit()
+    return {"message": "Password reset successfully"}

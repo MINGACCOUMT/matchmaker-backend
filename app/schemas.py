@@ -135,3 +135,12 @@ class MessagesResponse(BaseModel):
 class SendMessageRequest(BaseModel):
     chat_id: int
     content: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
