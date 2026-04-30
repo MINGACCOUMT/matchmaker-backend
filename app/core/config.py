@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_SECRET: str = ""
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
-    OAUTH_REDIRECT_URI: str = "http://localhost:5173/oauth/callback"
+    OAUTH_REDIRECT_URI: str = "https://matchmaker-frontend-hs57.onrender.com/oauth/callback"
 
     class Config:
         env_file = ".env"
