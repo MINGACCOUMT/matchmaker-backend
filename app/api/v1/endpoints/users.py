@@ -7,7 +7,7 @@
 import json
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,7 @@ from app.core.auth import get_current_user
 from app.db.database import get_db
 from app.db.models import User, UserProfile
 from app.schemas import DiscoverResponse, MeResponse, UpdateMeRequest
+from app.services.recommendation import get_recommended_users
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -51,6 +52,9 @@ def get_me(user: User = Depends(get_current_user), db: Session = Depends(get_db)
         "avatar_url": user.avatar_url,
         "gender": user.gender,
         "birthday": user.birthday,
+        "city": user.city,
+        "phone": user.phone,
+        "address": user.address,
         "profile": {
             "height": profile.height if profile else None,
             "weight": profile.weight if profile else None,
@@ -58,7 +62,7 @@ def get_me(user: User = Depends(get_current_user), db: Session = Depends(get_db)
             "occupation": profile.occupation if profile else None,
             "income_level": profile.income_level if profile else None,
             "self_intro": profile.self_intro if profile else None,
-            "tags": profile.tags if profile else [],
+            "tags": parse_tags(profile.tags) if profile else [],
             "mbti": profile.mbti if profile else None,
             "is_verified": profile.is_verified if profile else False,
         } if profile else None,
@@ -80,6 +84,10 @@ def update_me(req: UpdateMeRequest, user: User = Depends(get_current_user), db: 
             user.birthday = date.fromisoformat(req.birthday)
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="birthday must be YYYY-MM-DD") from exc
+    if req.phone is not None:
+        user.phone = req.phone
+    if req.city is not None:
+        user.city = req.city
 
     profile = db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
     if not profile:
@@ -89,7 +97,9 @@ def update_me(req: UpdateMeRequest, user: User = Depends(get_current_user), db: 
     if req.bio is not None:
         profile.self_intro = req.bio
     if req.tags is not None:
-        profile.tags = parse_tags(req.tags)
+        profile.tags = json.dumps(parse_tags(req.tags), ensure_ascii=False)
+    if req.address is not None:
+        profile.address = req.address
 
     try:
         db.commit()
@@ -100,19 +110,33 @@ def update_me(req: UpdateMeRequest, user: User = Depends(get_current_user), db: 
 
 
 @router.get("/discover", response_model=DiscoverResponse)
-def discover_users(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """发现页：返回除当前用户以外的候选用户列表。"""
-    others = db.query(User).filter(User.id != user.id).limit(20).all()
-    users = []
-    for u in others:
-        profile = db.query(UserProfile).filter(UserProfile.user_id == u.id).first()
-        users.append({
-            "id": u.id,
-            "nickname": u.nickname,
-            "avatar_url": u.avatar_url,
-            "gender": u.gender,
-            "age": calculate_age(u.birthday),
-            "bio": profile.self_intro if profile else None,
-            "tags": profile.tags if profile else [],
-        })
-    return {"users": users}
+def discover_users(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    limit: int = Query(20, ge=1, le=100, description="每页数量"),
+    offset: int = Query(0, ge=0, description="分页偏移"),
+    min_score: float = Query(None, ge=0, le=100, description="最低匹配分数"),
+):
+    """
+    发现页：返回按匹配分数排序的候选用户列表。
+
+    - 默认只推荐异性用户
+    - 默认排除已喜欢/已匹配的用户
+    - 按匹配分数从高到低排序
+    - 支持分页
+    """
+    users, total = get_recommended_users(
+        db=db,
+        current_user=user,
+        limit=limit,
+        offset=offset,
+        min_score=min_score,
+        exclude_liked=True,
+        gender_filter=True,
+    )
+    return {
+        "users": users,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+    }

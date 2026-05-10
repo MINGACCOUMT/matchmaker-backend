@@ -67,6 +67,9 @@ class MeResponse(BaseModel):
     avatar_url: Optional[str]
     gender: int
     birthday: Optional[date]
+    city: Optional[str]
+    phone: Optional[str]
+    address: Optional[str]
     profile: Optional[UserProfileOut]
 
 
@@ -78,10 +81,33 @@ class UpdateMeRequest(BaseModel):
     city: Optional[str] = None
     bio: Optional[str] = None
     tags: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
 
 
 class DiscoverResponse(BaseModel):
     users: List[dict]
+    total: int = 0
+    limit: int = 20
+    offset: int = 0
+
+
+# ========== Tags ==========
+class TagsResponse(BaseModel):
+    tags: List[str]
+
+
+class TagsUpdateRequest(BaseModel):
+    tags: List[str]
+
+
+class TagAddRequest(BaseModel):
+    tag: str
+
+
+class SystemTagsResponse(BaseModel):
+    tags: List[str]
+    popular: List[str]
 
 
 # ========== Match ==========

@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user
 from app.db.database import get_db
-from app.db.models import Chat, Match, User, UserProfile
+from app.services.matching import compute_bidirectional_score
+from app.db.models import Chat, Match, User, UserProfile, UserPreference
 from app.schemas import LikeRequest, LikeResponse, MatchOut, MatchesResponse
 
 router = APIRouter(prefix="/matches", tags=["matches"])
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/matches", tags=["matches"])
 
 @router.post("/like", response_model=LikeResponse)
 def like_user(req: LikeRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """喜欢某个用户；如果对方已喜欢我，则将状态升级为匹配成功。"""
+    """喜欢某个用户；如果对方已喜欢我，则将状态升级为匹配成功，并计算匹配分数。"""
     # 检查是否喜欢自己
     if req.to_user_id == user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot like yourself")
@@ -45,6 +46,23 @@ def like_user(req: LikeRequest, user: User = Depends(get_current_user), db: Sess
                 existing.status = 1  # 升级为匹配成功
                 matched = True
                 match_id = existing.id
+
+                # 计算双向匹配分数
+                user_a = db.query(User).filter(User.id == existing.user_a_id).first()
+                user_b = db.query(User).filter(User.id == existing.user_b_id).first()
+                profile_a = db.query(UserProfile).filter(UserProfile.user_id == existing.user_a_id).first()
+                profile_b = db.query(UserProfile).filter(UserProfile.user_id == existing.user_b_id).first()
+                pref_a = db.query(UserPreference).filter(UserPreference.user_id == existing.user_a_id).first()
+                pref_b = db.query(UserPreference).filter(UserPreference.user_id == existing.user_b_id).first()
+
+                if user_a and user_b:
+                    score, reason = compute_bidirectional_score(
+                        user_a, profile_a, pref_a or UserPreference(user_id=user_a.id),
+                        user_b, profile_b, pref_b or UserPreference(user_id=user_b.id),
+                    )
+                    existing.match_score = score
+                    existing.match_reason = reason
+
                 db.add(Chat(
                     match_id=existing.id,
                     user_a_id=existing.user_a_id,

@@ -9,19 +9,20 @@ from app.db.database import Base
 class User(Base):
     """用户表"""
     __tablename__ = "users"
-
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
+    phone = Column(String(20), unique=True, nullable=True)
+    email = Column(String(255), unique=True, nullable=True)
     password_hash = Column(String(255), nullable=True)
     nickname = Column(String(50))
     avatar_url = Column(String(500))
     gender = Column(SmallInteger, default=0)
     birthday = Column(Date)
+    city = Column(String(100))
     city_id = Column(Integer)
     status = Column(SmallInteger, default=0)
-    last_active_at = Column(DateTime)
-    created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    last_active_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
 
 class UserProfile(Base):
@@ -37,6 +38,7 @@ class UserProfile(Base):
     self_intro = Column(Text)
     tags = Column(Text)  # PostgreSQL数组，暂存为TEXT
     mbti = Column(String(4))
+    address = Column(String(255))
     profile_completion_rate = Column(SmallInteger, default=0)
     is_verified = Column(Boolean, default=False)
     verified_at = Column(DateTime)

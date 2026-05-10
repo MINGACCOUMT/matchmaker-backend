@@ -66,7 +66,7 @@ async def root():
 
 
 # API 路由
-from app.api.v1.endpoints import users, matches, auth, chat, websocket, oauth
+from app.api.v1.endpoints import users, matches, auth, chat, websocket, oauth, tags
 from app.api.endpoints import upload, swipe
 
 # REST API
@@ -75,6 +75,7 @@ app.include_router(oauth.router, prefix="/api/auth")
 app.include_router(chat.router, prefix="/api/chat")
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(matches.router, prefix=settings.API_V1_PREFIX)
+app.include_router(tags.router, prefix=settings.API_V1_PREFIX)
 app.include_router(upload.router, prefix=settings.API_V1_PREFIX)
 app.include_router(swipe.router, prefix=settings.API_V1_PREFIX)
 
